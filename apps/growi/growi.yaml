@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: growi
+spec:
+  type: ClusterIP
+  selector:
+    app: growi
+  ports:
+    - port: 3000
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: growi
+spec:
+  replicas: 1
+  # 新旧のGROWIが同じデータベースに同時に接続しないよう、古いPodを止めてから新しいPodを起動する
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: growi
+  template:
+    metadata:
+      labels:
+        app: growi
+    spec:
+      containers:
+        - name: growi
+          image: growilabs/growi:8.0.7
+          env:
+            - name: MONGO_URI
+              value: mongodb://mongo-0.mongo:27017/growi?replicaSet=rs0
+            - name: ELASTICSEARCH_URI
+              value: http://elasticsearch:9200/growi
+            - name: PASSWORD_SEED
+              valueFrom:
+                secretKeyRef:
+                  name: growi-secret
+                  key: PASSWORD_SEED
+            - name: FILE_UPLOAD
+              value: mongodb
+            - name: APP_SITE_URL
+              value: http://raspi.local
+          ports:
+            - containerPort: 3000
+          startupProbe:
+            httpGet:
+              path: /_api/v3/healthcheck
+              port: 3000
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /_api/v3/healthcheck
+              port: 3000
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /_api/v3/healthcheck
+              port: 3000
+            periodSeconds: 20
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              memory: 1536Mi
