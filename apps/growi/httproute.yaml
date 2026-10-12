@@ -1,0 +1,26 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: growi
+  namespace: growi
+spec:
+  # 接続する入口
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: eg
+      namespace: gateway
+  # hostnames は書いていない。書かない場合は、すべてのホスト名が対象になる
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      # 転送先
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: growi
+          namespace: growi
+          port: 3000
+          weight: 1
