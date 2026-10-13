@@ -10,7 +10,10 @@ spec:
       kind: Gateway
       name: eg
       namespace: gateway
-  # hostnames は書いていない。書かない場合は、すべてのホスト名が対象になる
+  # この経路が受け付けるホスト名。ここに無い名前やIPアドレスで来た通信は対象外
+  hostnames:
+    - raspi.local
+    - raspi-growi.duckdns.org
   rules:
     - matches:
         - path:

@@ -10,7 +10,9 @@ spec:
       kind: Gateway
       name: eg
       namespace: gateway
-  # hostnames は書いていない。書かない場合は、すべてのホスト名が対象になる
+  # この経路が受け付けるホスト名。家の中でしか通用しない名前だけにして、外には出さない
+  hostnames:
+    - raspi.local
   rules:
     - matches:
         - path:
