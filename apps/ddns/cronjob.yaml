@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: duckdns-update
+  namespace: ddns
+spec:
+  # 5分ごとに実行する
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: update
+              image: curlimages/curl:8.22.0
+              env:
+                - name: DUCKDNS_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: duckdns-token
+                      key: token
+              command: ["sh", "-c"]
+              # ip= を空にすると、DuckDNS は接続元のアドレス（自宅のグローバルIP）を登録する。
+              # 応答は OK か KO で、OK 以外は失敗として扱う
+              args:
+                - |
+                  r=$(curl -fsS --max-time 20 "https://www.duckdns.org/update?domains=raspi-growi&token=${DUCKDNS_TOKEN}&ip=")
+                  echo "duckdns: ${r}"
+                  [ "${r}" = "OK" ]
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 16Mi
+                limits:
+                  memory: 32Mi
