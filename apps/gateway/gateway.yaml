@@ -4,7 +4,7 @@ metadata:
   name: eg
   annotations:
     # cert-manager が、下の https の待ち受け用の証明書を、この発行元から取得する
-    cert-manager.io/cluster-issuer: letsencrypt-staging
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   gatewayClassName: eg
   listeners:
