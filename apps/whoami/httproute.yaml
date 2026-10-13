@@ -4,12 +4,13 @@ metadata:
   name: whoami
   namespace: whoami
 spec:
-  # 接続する入口
+  # 接続する入口。sectionName で、Gateway の http（80番）の待ち受けだけに接続する
   parentRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
       name: eg
       namespace: gateway
+      sectionName: http
   # この経路が受け付けるホスト名。家の中でしか通用しない名前だけにして、外には出さない
   hostnames:
     - raspi.local

@@ -43,7 +43,10 @@ spec:
             - name: FILE_UPLOAD
               value: mongodb
             - name: APP_SITE_URL
-              value: http://raspi.local
+              value: https://raspi-growi.duckdns.org
+            # サイトURLを、データベースの値ではなく、上の環境変数だけで決める
+            - name: APP_SITE_URL_USES_ONLY_ENV_VARS
+              value: "true"
           ports:
             - containerPort: 3000
           startupProbe:
